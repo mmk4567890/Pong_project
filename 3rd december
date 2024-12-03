@@ -1,0 +1,95 @@
+import turtle
+
+# Set up the screen
+class SetScreen:
+    def __init__(self):
+        self.screen = turtle.Screen()
+        self.screen.bgcolor("black")
+        self.screen.setup(width=800, height=600)
+        self.screen.title("PONG")
+        self.screen.tracer(0)
+
+# Create a paddle
+class Paddle:
+    def __init__(self, screen, x_pos):
+        self.paddle = turtle.Turtle()
+        self.paddle.shape("square")
+        self.paddle.color("white")
+        self.paddle.shapesize(stretch_wid=5, stretch_len=1)
+        self.paddle.penup()
+        self.paddle.goto(x=x_pos, y=0)
+        self.screen = screen
+
+    def go_up(self):
+        new_y = self.paddle.ycor() + 25
+        self.paddle.goto(self.paddle.xcor(), new_y)
+
+    def go_down(self):
+        new_y = self.paddle.ycor() - 25
+        self.paddle.goto(self.paddle.xcor(), new_y)
+
+class Ball:
+    def __init__(self, screen):
+        self.ball = turtle.Turtle()
+        self.ball.shape("circle")
+        self.ball.color("white")
+        self.ball.penup()
+        self.ball.goto(x=0,y=0)
+        self.screen = screen
+        self.ball.xspeed = 0.2
+        self.ball.yspeed = 0.2
+
+    def move(self):
+        
+        new_x = self.ball.xcor() + self.ball.xspeed 
+        if self.ball.ycor() > 300 or self.ball.ycor() < -300:
+            self.ball.yspeed *= -1    #will bounce the balls off the top and bottom walls
+        new_y = self.ball.ycor() + self.ball.yspeed 
+        
+        self.ball.goto(new_x, new_y)
+
+    
+        
+        
+
+
+
+
+
+# The actual game
+def main():
+    # Create screen and paddle and ball
+    game_screen = SetScreen()
+    right_paddle = Paddle(game_screen.screen, 360)
+    left_paddle = Paddle(game_screen.screen, -360)
+    ball = Ball(game_screen.screen)
+
+    # Event listeners
+    game_screen.screen.listen()
+    game_screen.screen.onkey(right_paddle.go_up, "Up")
+    game_screen.screen.onkey(right_paddle.go_down, "Down")
+    game_screen.screen.onkey(left_paddle.go_up, "w")
+    game_screen.screen.onkey(left_paddle.go_down, "s")
+    
+
+    # Game loop
+    game_is_on = True
+    while game_is_on:
+        game_screen.screen.update()
+        ball.move()
+
+        
+
+
+    game_screen.screen.exitonclick()
+
+
+
+
+
+
+
+main()
+
+
+
