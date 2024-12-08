@@ -1,0 +1,160 @@
+import turtle
+
+# Set up the screen
+class SetScreen:
+    def __init__(self):
+        self.screen = turtle.Screen()
+        self.screen.bgcolor("black")
+        self.screen.setup(width=800, height=600)
+        self.screen.title("PONG")
+        self.screen.tracer(0)
+
+# Create a paddle
+class Paddle:
+    def __init__(self, screen, x_pos):
+        self.paddle = turtle.Turtle()
+        self.paddle.shape("square")
+        self.paddle.color("white")
+        self.paddle.shapesize(stretch_wid=5, stretch_len=1)
+        self.paddle.penup()
+        self.paddle.goto(x=x_pos, y=0)
+        self.screen = screen
+
+    def go_up(self):
+        new_y = self.paddle.ycor() + 25
+        self.paddle.goto(self.paddle.xcor(), new_y)
+
+    def go_down(self):
+        new_y = self.paddle.ycor() - 25
+        self.paddle.goto(self.paddle.xcor(), new_y)  
+
+    def check_collision_with_paddle(self, paddle):
+        # Check if the ball is near the paddle and within paddle's y-range
+        if self.ball.xcor() > 340 and paddle.paddle.xcor() > 340:  # Right paddle
+            if paddle.paddle.ycor() - 50 < self.ball.ycor() < paddle.paddle.ycor() + 50:
+                self.ball.xspeed *= -1  # Reverse horizontal direction
+        
+        if self.ball.xcor() < -340 and paddle.paddle.xcor() < -340:  # Left paddle
+            if paddle.paddle.ycor() - 50 < self.ball.ycor() < paddle.paddle.ycor() + 50:
+                self.ball.xspeed *= -1  # Reverse horizontal direction
+
+
+    
+
+#create the ball
+class Ball():
+    def __init__(self, screen):
+        self.ball = turtle.Turtle()
+        self.ball.shape("circle")
+        self.ball.color("white")
+        self.ball.penup()
+        self.ball.goto(x=0, y=0)
+        self.screen = screen
+        self.ball.xspeed = 0.2
+        self.ball.yspeed = 0.2
+
+
+    def move(self):
+        new_x = self.ball.xcor() + self.ball.xspeed
+        if self.ball.ycor() > 300 or self.ball.ycor() < -300:
+            self.ball.yspeed *= -1  # Will bounce the balls off the top and bottom walls
+        new_y = self.ball.ycor() + self.ball.yspeed
+        self.ball.goto(new_x, new_y)
+
+    def check_collision_with_paddle(self, paddle):
+        # Check if the ball is near the paddle and within paddle's y-range
+        if 340 < self.ball.xcor() < 350 and paddle.paddle.xcor() > 340:  # Right paddle
+            if paddle.paddle.ycor() - 50 < self.ball.ycor() < paddle.paddle.ycor() + 50:
+                self.ball.xspeed *= -1  # Reverse the horizontal direction of the ball so it goes in the opposite direction
+                self.ball.goto(340, self.ball.ycor())  # Move the ball away far enough so that there is no double dounce
+        
+        if -350 < self.ball.xcor() < -340 and paddle.paddle.xcor() < -340:  # same thing but for the left paddle
+            if paddle.paddle.ycor() - 50 < self.ball.ycor() < paddle.paddle.ycor() + 50:
+                self.ball.xspeed *= -1  # Reverse the horizontal direction
+                self.ball.goto(-340, self.ball.ycor())  # Move the ball away far enough so that there is no double dounce
+    
+    def reset_position_right(self):
+        if self.ball.xcor() > 360:
+            self.ball.goto(x=0,y=0)
+            self.ball.xspeed *= -1
+            Scoreboard.leftpoint()
+    
+    def reset_position_left(self):
+        if self.ball.xcor() < -360:
+            self.ball.goto(x=0,y=0)
+            self.ball.xspeed *= -1
+            Scoreboard.rightpoint()
+
+
+class Scoreboard():
+    def __init__(self,screen):
+        self.scoreboard = turtle.Turtle()
+        self.scoreboard.color("white")
+        self.scoreboard.penup()
+        self.scoreboard.leftscore = 0
+        self.scoreboard.rightscore = 0
+        self.scoreboard.hideturtle()
+        self.updatescore()
+        self.screen = screen
+       
+
+    def updatescore(self):
+        self.scoreboard.clear()
+        self.scoreboard.goto(-110, 210)
+        self.scoreboard.write(self.scoreboard.leftscore, align = "center", font = ("Arial", 75,"normal"))
+        self.scoreboard.goto(110,210)
+        self.scoreboard.write(self.scoreboard.rightscore, align = "center", font = ("Arial", 75,"normal"))
+
+
+    def leftpoint(self):
+        self.scoreboard.leftscore += 1
+        self.scoreboard.updatescore()
+
+    def rightpoint(self):
+        self.scoreboard.rightscore += 1
+        self.scoreboard.updatescore()
+
+
+
+
+
+
+
+
+
+# The actual game
+def main():
+    # Create screen and paddle and ball
+    game_screen = SetScreen()
+    right_paddle = Paddle(game_screen.screen, 360)
+    left_paddle = Paddle(game_screen.screen, -360)
+    ball = Ball(game_screen.screen)
+    scoreboard = Scoreboard(game_screen.screen)
+
+    # Event listeners
+    game_screen.screen.listen()
+    game_screen.screen.onkey(right_paddle.go_up, "Up")
+    game_screen.screen.onkey(right_paddle.go_down, "Down")
+    game_screen.screen.onkey(left_paddle.go_up, "w")
+    game_screen.screen.onkey(left_paddle.go_down, "s")
+    
+
+    # Game loop
+    game_is_on = True
+    while game_is_on:
+        game_screen.screen.update()
+        ball.move()
+        # Check for collisions with paddles
+        ball.check_collision_with_paddle(right_paddle)
+        ball.check_collision_with_paddle(left_paddle)
+        ball.reset_position_right()
+        ball.reset_position_left()
+
+
+
+
+
+    game_screen.screen.exitonclick()
+
+
+main()
